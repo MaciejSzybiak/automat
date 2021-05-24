@@ -51,6 +51,15 @@ class TestAutomatMethods(unittest.TestCase):
 
         self.assertListEqual(coins, [])
 
+    def test_consumesCoinsWhenRequiredAmountPaid(self) -> None:
+        a = Automat(5)
+        a._Automat__items[30].set_price(5)
+        testCoins = [Coin(5)]
+
+        coins, item = a.pay_for_item(30, testCoins)
+
+        self.assertListEqual(testCoins, [])
+
     def test_returnsCoinsWhenPaidTooMuch(self) -> None:
         a = Automat(5)
         a._Automat__items[30].set_price(5)

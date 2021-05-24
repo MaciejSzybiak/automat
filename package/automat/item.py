@@ -47,6 +47,7 @@ class ItemInfo:
         if self.__amount == 0:
             raise NoItemsLeftException()
         else:
+            self.set_amount(self.__amount - 1)
             return copy.deepcopy(self.__item)
     def get_amount(self) -> int:
         """Returns the current amount of items."""
