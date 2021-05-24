@@ -1,0 +1,7 @@
+language: python
+python:
+ - "3.8"
+script:
+ - python3 -m package.test.automat_test
+ - python3 -m package.test.item_test
+ - python3 -m package.test.coin_test
