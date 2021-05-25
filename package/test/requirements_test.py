@@ -8,6 +8,9 @@ class TestProjectRequirements(unittest.TestCase):
         super().setUp()
         self.automat = Automat(5)
         self.itemNumber = 30
+        #set constant item price for itemNumber
+        self.itemPrice = 5.2
+        self.automat._Automat__items[self.itemNumber].set_price(self.itemPrice)
 
     def test_returnsItemPrice(self) -> None:
         """Test requirement #1"""
@@ -21,12 +24,9 @@ class TestProjectRequirements(unittest.TestCase):
     def test_returnsItemWithNoChangeWhenExactPriceMatched(self) -> None:
         """Test requirement #2"""
         coins = [Coin(2), Coin(2), Coin(1), Coin(0.2)]
-        #set item price for this test
-        self.automat._Automat__items[self.itemNumber].set_price(5.2)
 
         #try to buy the item with coins
         change, item = self.automat.pay_for_item(self.itemNumber, coins)
-        self.itemNumber += 1 #next test should use a different item
 
         #machine should return no change and a valid item
         self.assertListEqual(change, [])
@@ -38,11 +38,8 @@ class TestProjectRequirements(unittest.TestCase):
         """Test requirement #3"""
         coins = [Coin(2), Coin(2), Coin(2), Coin(0.5)]
         expected_change = 1.3
-        #set item price for this test
-        self.automat._Automat__items[self.itemNumber].set_price(5.2)
 
         change, item = self.automat.pay_for_item(self.itemNumber, coins)
-        self.itemNumber += 1 #next test should use a different item
 
         #machine should return correct amount of change and a valid item
         self.assertEqual(get_coins_value(change), expected_change)
@@ -55,8 +52,6 @@ class TestProjectRequirements(unittest.TestCase):
         coins = [Coin(2), Coin(2), Coin(1), Coin(0.2)]
         #check how many items are available right now
         name, price, available = self.automat.get_item_details(self.itemNumber)
-        #set item price for this test
-        self.automat._Automat__items[self.itemNumber].set_price(5.2)
 
         #buy all items
         for _ in range(0, available):
@@ -66,7 +61,6 @@ class TestProjectRequirements(unittest.TestCase):
         #NoItemsLeftException is the expected messsage
         with self.assertRaises(NoItemsLeftException):
             self.automat.pay_for_item(self.itemNumber, coins)
-        self.itemNumber += 1 #next test should use a different item
 
         #coins should not be consumed by the machine
         self.assertEqual(len(coins), 4)
@@ -84,25 +78,21 @@ class TestProjectRequirements(unittest.TestCase):
         #NotEnoughMoneyException is the expected message
         with self.assertRaises(NotEnoughMoneyException):
             self.automat.pay_for_item(self.itemNumber, coins)
-        self.itemNumber += 1 #next test should use a different item
 
         #coins should not be consumed by the machine
         self.assertEqual(len(coins), 1)
 
     def test_retryBuyingAfterAddingMoreMoney(self) -> None:
         """Test requirement #7"""
-        coins = [Coin(2)]
-        #set price of the item for this test
-        self.automat._Automat__items[self.itemNumber].set_price(3)
+        coins = [Coin(2), Coin(2), Coin(1)]
 
         #pay not enough money - expected to raise NotEnoughMoneyException
         with self.assertRaises(NotEnoughMoneyException):
             self.automat.pay_for_item(self.itemNumber, coins)
 
         #add more money and pay again
-        coins.append(Coin(1))
+        coins.append(Coin(0.2))
         change, item = self.automat.pay_for_item(self.itemNumber, coins)
-        self.itemNumber += 1 #next test should use a different item
 
         #returned change list should be empty and the item should be valid
         self.assertListEqual(change, [])
@@ -112,14 +102,11 @@ class TestProjectRequirements(unittest.TestCase):
 
     def test_payingWith1grCoins(self) -> None:
         """Test requirement #8"""
-        #100 1gr coins
-        coins = [Coin(0.01) for _ in range(0, 100)]
-        #set price of the item for this test
-        self.automat._Automat__items[self.itemNumber].set_price(1)
+        #520 1gr coins
+        coins = [Coin(0.01) for _ in range(0, 520)]
 
         #use the coins to buy the item
         change, item = self.automat.pay_for_item(self.itemNumber, coins)
-        self.itemNumber += 1 #next test should use a different item
 
         #returned change list should be empty and the item should be valid
         self.assertListEqual(change, [])
