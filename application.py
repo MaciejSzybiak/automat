@@ -19,7 +19,6 @@ class AutomatHandler():
     def on_clear_coins_btn_click(self) -> None:
         print('Clear coins')
 
-
 class Application(tk.Frame):
     def __init__(self, master: tk.Tk) -> None:
         super().__init__(master)
@@ -33,19 +32,13 @@ class Application(tk.Frame):
         """Creates GUI elements."""
         ttk.Style().configure('TButton', padding=(4, 4, 4, 4))
         #create grid layout
-        self.grid_columnconfigure(0, pad=3, weight=1)
-        self.grid_columnconfigure(1, pad=3, weight=1)
-        self.grid_columnconfigure(2, pad=3, weight=1)
-        self.grid_columnconfigure(3, pad=3, weight=1)
-        self.grid_columnconfigure(4, pad=3, weight=1)
-        self.grid_columnconfigure(5, pad=3, weight=1)
+        for i in range(0, 6):
+            self.grid_columnconfigure(i, pad=3, weight=1)
 
         self.grid_rowconfigure(0, pad=3, weight=0)
         self.grid_rowconfigure(1, pad=3, weight=0)
-        self.grid_rowconfigure(2, pad=3, weight=1)
-        self.grid_rowconfigure(3, pad=3, weight=1)
-        self.grid_rowconfigure(4, pad=3, weight=1)
-        self.grid_rowconfigure(5, pad=3, weight=1)
+        for i in range(2, 6):
+            self.grid_rowconfigure(i, pad=3, weight=1)
 
         #create item number display
         label = tk.Label(self, text="Item number:")
@@ -74,7 +67,7 @@ class Application(tk.Frame):
         start_row = n_row + 2
         for i in range(1, 10):
             button = tk.Button(self, text=f'{values[i - 1]}', command=lambda value = values[i - 1]: func(value))
-            button.grid(row=start_row - ((i-1) // 3), column=(i - 1) % 3 + n_column, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
+            button.grid(row=start_row - ((i - 1) // 3), column=(i - 1) % 3 + n_column, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
         if add_zero:
             button = tk.Button(self, text='0', command=lambda: func(0))
             button.grid(row=n_row + 3, column=n_column, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
