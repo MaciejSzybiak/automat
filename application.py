@@ -7,17 +7,85 @@ from typing import Callable
 class AutomatHandler():
     def __init__(self) -> None:
         self.automat = at.Automat(5)
-        self.numberText = None
-        self.coinText = None
+        self.numberText: tk.StringVar
+        self.coinText: tk.StringVar
+        self.coins = []
+        self.item_number_text = ''
 
-    def on_coin_btn_click(self, value: int) -> None:
-        print(f'Coin: {value}')
+    def display_popup(self, text: str) -> None:
+        """Displays a popup window with information string provided by 'text' variable."""
+        popup = tk.Toplevel()
+        popup.geometry('200x120+400+400')
+        popup.wm_title("Info")
+        popup.grid_columnconfigure(0, pad=3, weight=1)
+        popup.grid_rowconfigure(0, pad=3, weight=1)
+        popup.grid_rowconfigure(1, pad=3, weight=1)
+
+        #create label with info
+        label = tk.Label(popup, text=text)
+        label.grid(row=0, column=0, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
+
+        #create OK button
+        b = ttk.Button(popup, text="OK", command=popup.destroy)
+        b.grid(row=1, column=0, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
+
+    def check_item(self) -> None:
+        """Checks if item of the given number exists and tries to buy it.
+        Displays apropriate info when the item is not available, the number is
+        incorrect, etc."""
+        itemNumber = int(self.item_number_text)
+        try:
+            #get item info
+            name, price, amount = self.automat.get_item_details(itemNumber)
+        except at.InvalidItemNumberException:
+            return
+        try:
+            #try to buy item
+            change, item = self.automat.pay_for_item(itemNumber, self.coins)
+            self.coins = change
+            self.update_coins_text()
+            self.display_popup(f'Bought item: {item.get_name()}\n\nChange was added\nback to your coins')
+        except at.NotEnoughMoneyException:
+            self.display_popup(f'Selected item: {name}\nPrice: {price}\nAmount: {amount}')
+        except at.ExactChangeOnlyException:
+            self.display_popup(f'Exact change only!')
+        except at.NoItemsLeftException:
+            self.display_popup('Item not available')
+        finally:
+            #clear item number text
+            self.item_number_text = ''
+            self.update_number_text()
+
+    def update_coins_text(self) -> None:
+        """Sets coins display based on the contents of 'coins' list."""
+        amount = at.get_coins_value(self.coins)
+        self.coinText.set(f'{amount}')
+
+    def update_number_text(self) -> None:
+        """Sets number text from 'item_number_text' string."""
+        self.numberText.set(self.item_number_text)
+
+    def on_coin_btn_click(self, value: float) -> None:
+        """Callback for clicking a coin button."""
+        self.coins.append(at.Coin(value))
+        self.update_coins_text()
+
     def on_number_btn_click(self, value: int) -> None:
-        print(f'Number: {value}')
+        """Callback for clicking a number button."""
+        self.item_number_text += f'{value}' #append new digit to the number string
+        self.update_number_text()
+        self.check_item()
+
     def on_clear_number_btn_click(self) -> None:
-        print('Clear number')
+        """Clears the entered number."""
+        self.item_number_text = ''
+        self.update_number_text()
+
     def on_clear_coins_btn_click(self) -> None:
-        print('Clear coins')
+        """Clears the entered coins. In reality it would
+        return the coins to the customer."""
+        self.coins.clear()
+        self.update_coins_text()
 
 class Application(tk.Frame):
     def __init__(self, master: tk.Tk) -> None:
@@ -43,14 +111,16 @@ class Application(tk.Frame):
         #create item number display
         label = tk.Label(self, text="Item number:")
         label.grid(row=0, columnspan=3, rowspan=1, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
-        self.handler.numberText = tk.Entry(self, justify='right', state=tk.DISABLED)
-        self.handler.numberText.grid(row=1, column=0, columnspan=3, rowspan=1, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
+        self.handler.numberText = tk.StringVar()
+        numberText = tk.Entry(self, justify='right', state=tk.DISABLED, textvariable=self.handler.numberText)
+        numberText.grid(row=1, column=0, columnspan=3, rowspan=1, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
         
         #create coins display
         label = tk.Label(self, text="Coins:")
         label.grid(row=0, column=3, columnspan=3, rowspan=1, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
-        self.handler.coinText = tk.Entry(self, justify='right', state=tk.DISABLED)
-        self.handler.coinText.grid(row=1, column=3, columnspan=3, rowspan=1, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
+        self.handler.coinText = tk.StringVar()
+        coinText = tk.Entry(self, justify='right', state=tk.DISABLED, textvariable=self.handler.coinText)
+        coinText.grid(row=1, column=3, columnspan=3, rowspan=1, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
 
         #create buttons
         self.createKeypad(2, 0, self.handler.on_number_btn_click, [i for i in range(1, 10)], True)
