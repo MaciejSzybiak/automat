@@ -41,7 +41,8 @@ class AutomatHandler():
         try:
             #try to buy item
             change, item = self.automat.pay_for_item(itemNumber)
-            self.coins = change
+            for c in change:
+                self.automat.insert_coin(c)
             self.update_coins_text()
             self.display_popup(f'Bought item: {item.get_name()}\n\nChange was added\nback to your coins')
         except at.NotEnoughMoneyException:
