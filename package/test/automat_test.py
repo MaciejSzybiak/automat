@@ -52,26 +52,57 @@ class TestAutomatMethods(unittest.TestCase):
     def test_returnsNoCoinsWhenRequiredAmountPaid(self) -> None:
         testCoins = [Coin(2), Coin(1)]
 
-        coins, item = self.a.pay_for_item(self.itemNumber, testCoins)
+        for c in testCoins:
+            self.a.insert_coin(c)
+
+        coins, item = self.a.pay_for_item(self.itemNumber)
 
         self.assertListEqual(coins, [])
 
     def test_consumesCoinsWhenRequiredAmountPaid(self) -> None:
         testCoins = [Coin(2), Coin(1)]
 
-        coins, item = self.a.pay_for_item(self.itemNumber, testCoins)
+        for c in testCoins:
+            self.a.insert_coin(c)
 
-        self.assertListEqual(testCoins, [])
+        coins, item = self.a.pay_for_item(self.itemNumber)
+
+        self.assertEqual(self.a.get_inserted_coins_value(), 0)
 
     def test_returnsCoinsWhenPaidTooMuch(self) -> None:
         testCoins = [Coin(2), Coin(2)]
 
-        itemName, itemPrice, itemAmount = self.a.get_item_details(self.itemNumber)
+        for c in testCoins:
+            self.a.insert_coin(c)
 
-        coins, item = self.a.pay_for_item(self.itemNumber, testCoins)
+        coins, item = self.a.pay_for_item(self.itemNumber)
         sum = sum_coins(coins)
 
         self.assertEqual(sum, 1)
+
+    def test_insertsCoins(self) -> None:
+        coinToAdd = Coin(5)
+
+        self.a.insert_coin(coinToAdd)
+
+        self.assertListEqual(self.a._Automat__inserted_coins, [coinToAdd])
+
+    def test_returnsInsertedCoinsValue(self) -> None:
+        coinValue = 5
+        coinToAdd = Coin(coinValue)
+
+        self.a.insert_coin(coinToAdd)
+
+        self.assertEqual(self.a.get_inserted_coins_value(), coinValue)
+
+    def test_clearsInsertedCoins(self) -> None:
+        coinValue = 5
+        coinToAdd = Coin(coinValue)
+
+        self.a._Automat__inserted_coins.append(coinToAdd)
+        self.a.clear_inserted_coins()
+
+        self.assertEqual(self.a._Automat__inserted_coins, [])
 
     def test_getCoinsValue(self) -> None:
         coins = [Coin(5), Coin(0.1), Coin(0.02)]

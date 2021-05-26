@@ -37,6 +37,7 @@ class Automat:
         #create items and coins dictionaries
         self.__items = { n:ItemInfo(get_random_price(), amountOfEachItem, Item(f"Item {n}")) for n in range(30, 51) }
         self.__coins = { amount:[Coin(amount) for _ in range(0,10)] for amount in coin_values }
+        self.__inserted_coins: "list[Coin]" = []
     def __fetch_item(self, itemNumber: int) -> Item:
         """Returns the requested item or raises an exception if it's not available."""
         try:
@@ -56,6 +57,15 @@ class Automat:
         except KeyError:
             raise InvalidItemNumberException()
         return itemInfo.get_name(), itemInfo.get_price(), itemInfo.get_amount()
+    def insert_coin(self, coin: Coin) -> None:
+        """Insert a coin from the customer."""
+        self.__inserted_coins.append(coin)
+    def clear_inserted_coins(self) -> None:
+        """Clears inserted coins list."""
+        self.__inserted_coins.clear()
+    def get_inserted_coins_value(self) -> float:
+        """Returns value of the inserted coins."""
+        return get_coins_value(self.__inserted_coins)
     def add_coins(self, coins: "list[Coin]") -> None:
         """Adds coins from the list to automat's coins."""
         #add coins to the machine
@@ -77,19 +87,19 @@ class Automat:
         if amount > 0:
             raise ExactChangeOnlyException(amount)
         return coins
-    def pay_for_item(self, itemNumber: int, coins: "list[Coin]") -> "tuple[list[Coin], Item]":
-        """Tries to pay for item. Returns a tuple of change and item if succeeded."""
-        coinsValue = get_coins_value(coins)
+    def pay_for_item(self, itemNumber: int) -> "tuple[list[Coin], Item]":
+        """Tries to pay for item with the inserted coins. Returns a tuple of change and item if succeeded."""
+        coinsValue = self.get_inserted_coins_value()
         itemName, itemPrice, itemAmount = self.get_item_details(itemNumber)
         if coinsValue == itemPrice:
             try:
                 item = self.__fetch_item(itemNumber)
-                self.add_coins(coins)
+                self.add_coins(self.__inserted_coins)
                 return [], item
             except NoItemsLeftException as e:
                 raise e
         elif coinsValue >= itemPrice:
-            self.add_coins(coins)
+            self.add_coins(self.__inserted_coins)
             return self.__get_change(coinsValue, itemPrice), self.__fetch_item(itemNumber)
         else:
             raise NotEnoughMoneyException(coinsValue, itemPrice)

@@ -9,7 +9,6 @@ class AutomatHandler():
         self.automat = at.Automat(5)
         self.numberText: tk.StringVar
         self.coinText: tk.StringVar
-        self.coins = []
         self.item_number_text = ''
 
     def display_popup(self, text: str) -> None:
@@ -41,7 +40,7 @@ class AutomatHandler():
             return
         try:
             #try to buy item
-            change, item = self.automat.pay_for_item(itemNumber, self.coins)
+            change, item = self.automat.pay_for_item(itemNumber)
             self.coins = change
             self.update_coins_text()
             self.display_popup(f'Bought item: {item.get_name()}\n\nChange was added\nback to your coins')
@@ -58,7 +57,7 @@ class AutomatHandler():
 
     def update_coins_text(self) -> None:
         """Sets coins display based on the contents of 'coins' list."""
-        amount = at.get_coins_value(self.coins)
+        amount = self.automat.get_inserted_coins_value()
         self.coinText.set(f'{amount}')
 
     def update_number_text(self) -> None:
@@ -67,7 +66,7 @@ class AutomatHandler():
 
     def on_coin_btn_click(self, value: float) -> None:
         """Callback for clicking a coin button."""
-        self.coins.append(at.Coin(value))
+        self.automat.insert_coin(at.Coin(value))
         self.update_coins_text()
 
     def on_number_btn_click(self, value: int) -> None:
@@ -84,7 +83,7 @@ class AutomatHandler():
     def on_clear_coins_btn_click(self) -> None:
         """Clears the entered coins. In reality it would
         return the coins to the customer."""
-        self.coins.clear()
+        self.automat.clear_inserted_coins()
         self.update_coins_text()
 
 class Application(tk.Frame):
