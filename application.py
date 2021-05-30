@@ -123,8 +123,8 @@ class Application(tk.Frame):
         coinText.grid(row=1, column=3, columnspan=3, rowspan=1, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
 
         #create buttons
-        self.createKeypad(2, 0, self.handler.on_number_btn_click, [i for i in range(1, 10)], True)
-        self.createKeypad(2, 3, self.handler.on_coin_btn_click, at.coin_values, False)
+        self.create_keypad(2, 0, self.handler.on_number_btn_click, [i for i in range(1, 10)], True)
+        self.create_keypad(2, 3, self.handler.on_coin_btn_click, at.coin_values, False)
         button = tk.Button(self, text='CLEAR NUMBER', command=self.handler.on_clear_number_btn_click)
         button.grid(row=5, column=1, columnspan=2, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
         button = tk.Button(self, text='CLEAR COINS', command=self.handler.on_clear_coins_btn_click)
@@ -132,12 +132,12 @@ class Application(tk.Frame):
 
         self.pack(fill="both", expand=True)
 
-    def createKeypad(self, n_row: int, n_column: int, func: Callable, values: list, add_zero: bool) -> None:
+    def create_keypad(self, n_row: int, n_column: int, func: Callable, values: list, add_zero: bool) -> None:
         """Creates a 0-9 keypad with specified values and button callback."""
         start_row = n_row + 2
-        for i in range(1, 10):
-            button = tk.Button(self, text=f'{values[i - 1]}', command=lambda value = values[i - 1]: func(value))
-            button.grid(row=start_row - ((i - 1) // 3), column=(i - 1) % 3 + n_column, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
+        for i in range(0, 9):
+            button = tk.Button(self, text=f'{values[i]}', command=lambda value = values[i]: func(value))
+            button.grid(row=start_row - (i // 3), column=i % 3 + n_column, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
         if add_zero:
             button = tk.Button(self, text='0', command=lambda: func(0))
             button.grid(row=n_row + 3, column=n_column, sticky=tk.W+tk.E+tk.N+tk.S, padx=2, pady=2)
