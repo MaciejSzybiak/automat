@@ -1,5 +1,4 @@
 import random
-from typing import NamedTuple
 from .coin import *
 from .item import *
 
@@ -38,8 +37,10 @@ class Automat:
         self.__items = { n:ItemInfo(get_random_price(), amountOfEachItem, Item(f"Item {n}")) for n in range(30, 51) }
         self.__coins = { amount:[Coin(amount) for _ in range(0,10)] for amount in coin_values }
         self.__inserted_coins: "list[Coin]" = []
+
     def __fetch_item(self, itemNumber: int) -> Item:
-        """Returns the requested item or raises an exception if it's not available."""
+        """Returns the requested item or raises an exception if it's not 
+        available."""
         try:
             item = self.__items[itemNumber].fetch_item()
             return item
@@ -47,9 +48,11 @@ class Automat:
             raise e
         except KeyError:
             raise InvalidItemNumberException()
+
     def get_items_list(self) -> "list[tuple[int, str]]":
         """Returns item numbers and names."""
         return [(k, v.get_name()) for k, v in self.__items.items()]
+
     def get_item_details(self, itemNumber: int) -> "tuple[str, float, int]":
         """Returns name, price and amount of an item."""
         try:
@@ -57,23 +60,29 @@ class Automat:
         except KeyError:
             raise InvalidItemNumberException()
         return itemInfo.get_name(), itemInfo.get_price(), itemInfo.get_amount()
+
     def insert_coin(self, coin: Coin) -> None:
         """Insert a coin from the customer."""
         self.__inserted_coins.append(coin)
+
     def clear_inserted_coins(self) -> None:
         """Clears inserted coins list."""
         self.__inserted_coins.clear()
+
     def get_inserted_coins_value(self) -> float:
         """Returns value of the inserted coins."""
         return get_coins_value(self.__inserted_coins)
+
     def add_coins(self, coins: "list[Coin]") -> None:
         """Adds coins from the list to automat's coins."""
         #add coins to the machine
         for c in coins:
             self.__coins[c.get_value()].append(c)
         coins.clear() #clear the list of coins passed to the machine
+
     def __get_change(self, coinsValue: float, price: float) -> "list[Coin]":
-        """Adds coins from the list to automat's coins and returns change to match the amount of money required."""
+        """Adds coins from the list to automat's coins and returns change 
+        to match the amount of money required."""
         amount = coinsValue - price #amount of change left
         coins = []
         for cv in coin_values[::-1]:
@@ -87,11 +96,14 @@ class Automat:
         if amount > 0:
             raise ExactChangeOnlyException(amount)
         return coins
+
     def pay_for_item(self, itemNumber: int) -> "tuple[list[Coin], Item]":
-        """Tries to pay for item with the inserted coins. Returns a tuple of change and item if succeeded."""
+        """Tries to pay for item with the inserted coins. Returns a tuple 
+        of change and item if succeeded."""
         coinsValue = self.get_inserted_coins_value()
         itemName, itemPrice, itemAmount = self.get_item_details(itemNumber)
         if coinsValue == itemPrice:
+            #exact amount of money
             try:
                 item = self.__fetch_item(itemNumber)
                 self.add_coins(self.__inserted_coins)
@@ -99,7 +111,11 @@ class Automat:
             except NoItemsLeftException as e:
                 raise e
         elif coinsValue >= itemPrice:
+            #too much money
             self.add_coins(self.__inserted_coins)
-            return self.__get_change(coinsValue, itemPrice), self.__fetch_item(itemNumber)
+            #get change first in case ExactChangeOnlyException is raised
+            change = self.__get_change(coinsValue, itemPrice)
+            return change, self.__fetch_item(itemNumber)
         else:
+            #not enough money
             raise NotEnoughMoneyException(coinsValue, itemPrice)

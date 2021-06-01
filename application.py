@@ -5,6 +5,8 @@ import tkinter.ttk as ttk
 from typing import Callable
 
 class AutomatHandler():
+    """Connects the GUI with an Automat object by handling all
+    GUI events."""
     def __init__(self) -> None:
         self.automat = at.Automat(5)
         self.numberText: tk.StringVar
@@ -12,7 +14,8 @@ class AutomatHandler():
         self.item_number_text = ''
 
     def display_popup(self, text: str) -> None:
-        """Displays a popup window with information string provided by 'text' variable."""
+        """Displays a popup window with information string provided by 'text'
+        variable."""
         popup = tk.Toplevel()
         popup.geometry('200x120+400+400')
         popup.wm_title("Info")
@@ -57,7 +60,7 @@ class AutomatHandler():
             self.update_number_text()
 
     def update_coins_text(self) -> None:
-        """Sets coins display based on the contents of 'coins' list."""
+        """Sets coins display based on the coins inserted into the machine."""
         amount = self.automat.get_inserted_coins_value()
         self.coinText.set(f'{amount}')
 
@@ -88,6 +91,7 @@ class AutomatHandler():
         self.update_coins_text()
 
 class Application(tk.Frame):
+    """Main application tkinter frame."""
     def __init__(self, master: tk.Tk) -> None:
         super().__init__(master)
         self.master = master

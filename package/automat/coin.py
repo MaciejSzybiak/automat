@@ -14,6 +14,8 @@ class Coin:
         else:
             raise InvalidCoinValueException(value)
     def get_value(self) -> float:
+        """Returns the value of a coin."""
         return self.__value
     def __eq__(self, other: object) -> bool:
+        """Compares coin values."""
         return isinstance(other, Coin) and self.__value == other._Coin__value
