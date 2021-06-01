@@ -95,12 +95,12 @@ class TestAutomatMethods(unittest.TestCase):
 
         self.assertEqual(self.a.get_inserted_coins_value(), coinValue)
 
-    def test_clearsInsertedCoins(self) -> None:
+    def test_returnsInsertedCoin(self) -> None:
         coinValue = 5
         coinToAdd = Coin(coinValue)
 
-        self.a._Automat__inserted_coins.append(coinToAdd)
-        self.a.clear_inserted_coins()
+        self.a.insert_coin(coinToAdd)
+        self.a.return_inserted_coins()
 
         self.assertEqual(self.a._Automat__inserted_coins, [])
 

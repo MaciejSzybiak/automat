@@ -72,15 +72,15 @@ class TestProjectRequirements(unittest.TestCase):
         with self.assertRaises(InvalidItemNumberException):
             name, price, amount = self.automat.get_item_details(55)
 
-    def test_raisesExceptionWhenNotEnoughMoneyPaid(self) -> None:
+    def test_returnsMoneyAfterCancelling(self) -> None:
         """Test requirement #6"""
-        coins = [Coin(1)]
+        coins = [Coin(1), Coin(2)]
         for c in coins:
             self.automat.insert_coin(c)
 
+        returned = self.automat.return_inserted_coins()
         #NotEnoughMoneyException is the expected message
-        with self.assertRaises(NotEnoughMoneyException):
-            self.automat.pay_for_item(self.itemNumber)
+        self.assertListEqual(returned, coins)
 
     def test_retryBuyingAfterAddingMoreMoney(self) -> None:
         """Test requirement #7"""

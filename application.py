@@ -87,8 +87,9 @@ class AutomatHandler():
     def on_clear_coins_btn_click(self) -> None:
         """Clears the entered coins. In reality it would
         return the coins to the customer."""
-        self.automat.clear_inserted_coins()
+        amount = at.get_coins_value(self.automat.return_inserted_coins())
         self.update_coins_text()
+        self.display_popup(f"Returned {amount}zl")
 
 class Application(tk.Frame):
     """Main application tkinter frame."""

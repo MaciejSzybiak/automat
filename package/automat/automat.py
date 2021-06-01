@@ -65,9 +65,11 @@ class Automat:
         """Insert a coin from the customer."""
         self.__inserted_coins.append(coin)
 
-    def clear_inserted_coins(self) -> None:
-        """Clears inserted coins list."""
+    def return_inserted_coins(self) -> None:
+        """Returns coins back to the client."""
+        coins = copy.deepcopy(self.__inserted_coins)
         self.__inserted_coins.clear()
+        return coins
 
     def get_inserted_coins_value(self) -> float:
         """Returns value of the inserted coins."""
